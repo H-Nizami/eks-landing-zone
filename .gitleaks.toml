@@ -1,0 +1,4 @@
+# gitleaks configuration: use the default rule set.
+# No allowlist entries yet; add path allowlists only with a comment explaining why.
+[extend]
+useDefault = true

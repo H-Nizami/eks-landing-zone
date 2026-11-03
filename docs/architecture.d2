@@ -1,0 +1,45 @@
+vars: { d2-config: { layout-engine: elk; pad: 60 } }
+direction: right
+# Only the AWS container uses a grid: with plain layered layout the 7-step
+# dependency chain renders ~3:1 and is unreadable as a ~400 px cover.
+title: |md # EKS landing zone, Terraform and OpenTofu | { near: top-center; style.font-size: 48 }
+caption: "Offline mock plans for Terraform and OpenTofu.\nNot yet measured: live deploy cost and teardown." { near: bottom-center; shape: text; style.font-size: 32 }
+
+# Two styles only: `mine` = built in this repo, `neutral` = everything else.
+classes: {
+  mine: { style: { fill: "#FFF4E5"; stroke: "#E8590C"; stroke-width: 3; font-color: "#1F1F1F"; bold: true; font-size: 40 } }
+  neutral: { style: { fill: "#F5F6F8"; stroke: "#8A94A6"; stroke-width: 1; font-color: "#1F1F1F"; font-size: 40 } }
+}
+
+ci: "CI matrix:\nterraform 1.17\n/ tofu 1.13" { class: mine; icon: ./icons/workflow-24.svg }
+modules: "Modules:\nVPC, EKS,\nPod Identity" { class: mine }
+aws: "AWS account / region" {
+  class: neutral
+  icon: ./icons/AWS-Cloud-logo_32.svg
+  # grid-columns first = column-major fill. Order keeps every edge between neighbouring cells.
+  grid-columns: 3
+  grid-rows: 3
+  vertical-gap: 150
+  horizontal-gap: 240
+  vpc: "VPC (3 AZ,\nprivate subnets)" { class: neutral; icon: ./icons/Arch_Amazon-Virtual-Private-Cloud_64.svg; icon.near: bottom-center }
+  eks: "EKS control\nplane" { class: neutral; icon: ./icons/Arch_Amazon-Elastic-Kubernetes-Service_64.svg; icon.near: bottom-center }
+  kyverno: "Kyverno\n(deferred)" { class: neutral; icon: ./icons/kyverno-icon-color.png; icon.near: bottom-center }
+  karpenter: "Karpenter\n(deferred)" { class: neutral; icon: ./icons/karpenter-logo.png; icon.near: bottom-center }
+  podid: "EKS Pod\nIdentity" { class: neutral }
+  iam: "IAM roles\n(least privilege)" { class: neutral; icon: ./icons/Arch_AWS-Identity-and-Access-Management_64.svg; icon.near: bottom-center }
+  sm: "Secrets\nManager" { class: neutral; icon: ./icons/Arch_AWS-Secrets-Manager_64.svg; icon.near: bottom-center }
+  eso: "External Secrets\n(deferred)" { class: neutral }
+}
+
+ci -> modules: "mock\nplan" { class: neutral; style.font-size: 32 }
+modules -> aws.vpc { class: neutral; style.font-size: 32 }
+modules -> aws.eks { class: neutral; style.font-size: 32 }
+aws.eks -> aws.karpenter: "provisions\nnodes" { class: neutral; style.font-size: 32 }
+aws.eks -> aws.podid { class: neutral; style.font-size: 32 }
+aws.podid -> aws.iam: "assume\nrole" { class: neutral; style.font-size: 32 }
+aws.eso -> aws.sm: "read\nsecrets" { class: neutral; style.font-size: 32 }
+aws.podid -> aws.eso: "credentials" { class: neutral; style.font-size: 32 }
+aws.kyverno -> aws.eks: "admission" { class: neutral; style: { font-size: 32; stroke-dash: 5 } }
+# Layout-only edge (invisible): ELK ignores edges into grid cells, so without it
+# the aws container is placed left of modules and the flow runs right to left.
+modules -> aws { style.opacity: 0 }

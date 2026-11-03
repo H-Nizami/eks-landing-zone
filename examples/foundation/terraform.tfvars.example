@@ -1,0 +1,12 @@
+# Copy to terraform.tfvars only for a separately approved deployment.
+name               = "example-eks"
+region             = "us-east-1"
+account_id         = "000000000000"
+availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+vpc_cidr           = "10.40.0.0/16"
+operator_role_arn  = "arn:aws:iam::000000000000:role/eks-operator"
+kms_admin_role_arn = "arn:aws:iam::000000000000:role/kms-admin"
+
+# Workload IAM remains disabled until worker nodes, the Pod Identity agent,
+# controller and service account are provisioned in later stages.
+enable_pod_identity = false
