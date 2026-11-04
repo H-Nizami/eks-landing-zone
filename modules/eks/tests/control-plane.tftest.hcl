@@ -7,7 +7,7 @@ variables {
   name               = "example-eks"
   region             = "us-east-1"
   account_id         = "000000000000"
-  kubernetes_version = "1.34"
+  kubernetes_version = "1.36"
   private_subnet_ids = ["subnet-aaaa1111", "subnet-bbbb2222", "subnet-cccc3333"]
   operator_role_arn  = "arn:aws:iam::000000000000:role/eks-operator"
   kms_admin_role_arn = "arn:aws:iam::000000000000:role/kms-admin"

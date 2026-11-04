@@ -1,15 +1,33 @@
 mock_provider "aws" {
+  mock_resource "aws_iam_policy" { defaults = { arn = "arn:aws:iam::000000000000:policy/example-policy" } }
+  mock_resource "aws_sqs_queue" { defaults = { arn = "arn:aws:sqs:us-east-1:000000000000:example", id = "https://sqs.us-east-1.amazonaws.com/000000000000/example" } }
+  mock_resource "aws_launch_template" { defaults = { id = "lt-0123456789abcdef0", latest_version = 1 } }
   mock_resource "aws_iam_role" { defaults = { arn = "arn:aws:iam::000000000000:role/example-role" } }
   mock_resource "aws_cloudwatch_log_group" { defaults = { arn = "arn:aws:logs:us-east-1:000000000000:log-group:example" } }
   mock_resource "aws_kms_key" { defaults = { arn = "arn:aws:kms:us-east-1:000000000000:key/00000000-0000-0000-0000-000000000000" } }
   mock_resource "aws_eks_cluster" { defaults = { arn = "arn:aws:eks:us-east-1:000000000000:cluster/example-eks" } }
 }
 
+variables {
+  pod_identity_agent_version = "v1.3.0-eksbuild.1"
+}
 run "foundation_without_workload_identity" {
   command = plan
   assert {
     condition     = length(module.vpc.private_subnet_ids) == 3 && module.eks.cluster_name == var.name && output.pod_identity_role_arn == null
     error_message = "The composed foundation must wire the VPC to EKS and omit optional workload IAM."
+  }
+}
+
+run "compute_and_karpenter_are_wired" {
+  command = plan
+  assert {
+    condition     = length(module.karpenter.interruption_queue_name) > 0 && module.compute.node_group_name == "bootstrap"
+    error_message = "The foundation must compose bootstrap compute and Karpenter resources."
+  }
+  assert {
+    condition     = var.kubernetes_version == "1.36"
+    error_message = "The default must stay on a version covered by the Karpenter compatibility matrix."
   }
 }
 

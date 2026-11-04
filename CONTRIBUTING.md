@@ -1,6 +1,6 @@
 # Contributing
 
-Terraform and OpenTofu EKS foundation (VPC, EKS, Pod Identity; Karpenter, External Secrets and Kyverno planned) that the other modules deploy onto. Every module is tested with both CLIs.
+Terraform and OpenTofu EKS landing zone (VPC, EKS, bootstrap compute, Pod Identity, Karpenter, External Secrets, Kyverno). Every module is tested with both CLIs.
 
 ## Pinned versions
 
@@ -10,6 +10,10 @@ Terraform and OpenTofu EKS foundation (VPC, EKS, Pod Identity; Karpenter, Extern
 | opentofu | 1.13.2 | `scripts/tools.sh` |
 | tflint | v0.64.0 | `scripts/tools.sh` |
 | checkov | 3.3.30 | `requirements-checkov.lock` |
+| helm | v3.22.1 | `scripts/tools.sh` |
+| kyverno CLI | v1.19.2 | `scripts/tools.sh` |
+| kind | v0.33.0 | `scripts/tools.sh` |
+| kubectl | v1.34.11 | `scripts/tools.sh` |
 | d2 | v0.9.0 | `scripts/tools.sh` |
 | actionlint | 1.7.12 | `scripts/tools.sh` |
 | gitleaks | 8.30.1 | `scripts/tools.sh`, `security.yml` |
@@ -31,7 +35,9 @@ Pin versions exactly. Check the upstream release notes and `--help` output befor
 
 - `make tools`: install pinned binaries into `.bin/`.
 - `make lint`: actionlint, shellcheck, `d2 validate`, hygiene checks, `fmt -check` with both CLIs, tflint.
-- `make test`: hygiene and IaC safety checks, then the provider-mocked plan tests with terraform and tofu.
+- `make test`: hygiene and IaC safety checks, then the provider-mocked plan tests with terraform and tofu, then chart and policy checks.
+- `make test-charts`: lint and render local charts, run Kyverno policy fixtures, check that pinned upstream charts resolve.
+- `make test-crds`: server-side dry run of rendered charts against upstream CRDs on a disposable kind cluster (needs Docker).
 - `make test-iac CLI=terraform|tofu`: run one CLI's plan tests.
 - `make security`: local secret and configuration scanners.
 - `make diagram`: render `docs/img/architecture.{svg,png}` (PNG 2400–4000 px wide, target 3000).
@@ -39,8 +45,9 @@ Pin versions exactly. Check the upstream release notes and `--help` output befor
 
 ## Layout
 
-- `modules/`: VPC, EKS and Pod Identity modules, each with its own tests.
-- `examples/foundation/`: composed root that wires the modules together.
+- `modules/`: VPC, EKS, compute, Karpenter, Pod Identity and platform modules, each with its own tests.
+- `examples/foundation/` and `examples/platform/`: the two deployment roots.
+- `policy-tests/`: Kyverno fixtures, including deliberately non-compliant pods excluded from Trivy.
 - `locks/`: provider lock files per CLI.
 - `docs/`: architecture diagram source, icons, rendered images, ADRs, pins, testing notes, security exceptions.
 - `scripts/`: test runner, tool installer, diagram rendering, hygiene, safety and author checks.

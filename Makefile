@@ -10,7 +10,7 @@ export D2
 
 UP_DOWN_MSG := live deployment is disabled until an approved, time-boxed AWS run (needs AWS credits)
 
-.PHONY: all help tools lint test test-iac security diagram up down
+.PHONY: all help tools lint test test-iac test-charts test-crds security diagram up down
 
 all: lint test diagram ## Run lint, test and diagram
 
@@ -18,7 +18,7 @@ help: ## List targets
 	@awk 'BEGIN {FS = ":.*## "} /^[a-z]+:.*## / {printf "  %-8s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 tools: ## Install pinned tool binaries into .bin/ (sha256-verified)
-	scripts/tools.sh d2 actionlint gitleaks trivy terraform tofu tflint
+	scripts/tools.sh d2 actionlint gitleaks trivy terraform tofu tflint helm kyverno kind kubectl
 
 lint: ## actionlint, shellcheck, d2 validate, hygiene checks
 	$(ACTIONLINT)
@@ -34,9 +34,16 @@ test: ## Offline contract tests with both CLIs
 	scripts/check-iac-safety.py
 	scripts/test-iac.sh terraform
 	scripts/test-iac.sh tofu
+	scripts/test-charts.sh
 
 test-iac: ## Run provider-mocked plan tests for CLI=terraform|tofu
 	scripts/test-iac.sh $(CLI)
+
+test-charts: ## Lint and render local charts, run Kyverno policy fixtures
+	scripts/test-charts.sh
+
+test-crds: ## Server-side dry run of rendered local charts against upstream CRDs (needs Docker)
+	scripts/test-crds.sh
 
 security: ## Run local secret and configuration scanners
 	scripts/check-security.sh

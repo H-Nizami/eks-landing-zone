@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars only for a separately approved deployment.
+# Take these values from the foundation stage outputs.
+cluster_name             = "example-eks"
+region                   = "us-east-1"
+cluster_endpoint         = "https://example.eks.amazonaws.com"
+cluster_ca_certificate   = "ZXhhbXBsZQ=="
+karpenter_node_role_name = "example-eks-karpenter-node"
+karpenter_queue_name     = "example-eks-karpenter"
+node_ami_alias           = "al2023@v20261031"

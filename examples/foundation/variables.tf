@@ -32,7 +32,27 @@ variable "single_nat" {
 }
 variable "kubernetes_version" {
   type    = string
-  default = "1.34"
+  default = "1.36"
+}
+variable "bootstrap_instance_types" {
+  type    = list(string)
+  default = ["m7i.large"]
+}
+variable "vpc_cni_version" {
+  type    = string
+  default = "v1.23.2-eksbuild.8"
+}
+variable "kube_proxy_version" {
+  type    = string
+  default = "v1.36.0-eksbuild.58"
+}
+variable "coredns_version" {
+  type    = string
+  default = "v1.14.7-eksbuild.22"
+}
+variable "pod_identity_agent_version" {
+  description = "Exact add-on version. AWS publishes no public table for it: run aws eks describe-addon-versions --addon-name eks-pod-identity-agent --kubernetes-version 1.36."
+  type        = string
 }
 variable "operator_role_arn" {
   type    = string

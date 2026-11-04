@@ -1,0 +1,6 @@
+validationAction: Deny
+excludedNamespaces:
+  - kube-system
+  - karpenter
+  - kyverno
+  - external-secrets

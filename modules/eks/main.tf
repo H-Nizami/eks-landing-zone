@@ -22,6 +22,7 @@ resource "aws_kms_key" "cluster" {
   ] })
 }
 resource "aws_eks_cluster" "this" {
+  #checkov:skip=CKV_AWS_339:The pinned Checkov predates Kubernetes 1.36; see docs/security-exceptions.md
   name                          = var.name
   role_arn                      = aws_iam_role.cluster.arn
   version                       = var.kubernetes_version
