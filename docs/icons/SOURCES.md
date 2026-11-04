@@ -19,7 +19,6 @@ AWS icons come from the AWS Architecture Icons package, archive URL
 
 Notes:
 - Karpenter and Kyverno use the official PNG files rather than SVG: d2 v0.9.0 PNG export rejects the Karpenter SVG (`duplicate id`) and the Kyverno SVG (`unsupported stylesheet selector`).
-- No Anthropic or Claude logo is used.
 - Octicons are MIT-licensed; the copyright and permission notice ships next to them in [`LICENSE-octicons.txt`](LICENSE-octicons.txt) (copied from primer/octicons at `ad7dcd0ec8659f89fc1972dc6c65c571f99c950e`).
 
 Logos are trademarks of their owners and are used only to identify the project (nominative use); no endorsement implied.

@@ -7,6 +7,9 @@ vpc_cidr           = "10.40.0.0/16"
 operator_role_arn  = "arn:aws:iam::000000000000:role/eks-operator"
 kms_admin_role_arn = "arn:aws:iam::000000000000:role/kms-admin"
 
-# Workload IAM remains disabled until worker nodes, the Pod Identity agent,
-# controller and service account are provisioned in later stages.
+# Look up the current build with:
+# aws eks describe-addon-versions --addon-name eks-pod-identity-agent --kubernetes-version 1.36
+pod_identity_agent_version = "vX.Y.Z-eksbuild.N"
+
+# Enable with exact secret ARNs to give External Secrets read access.
 enable_pod_identity = false

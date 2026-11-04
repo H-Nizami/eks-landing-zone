@@ -1,0 +1,50 @@
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: baseline-policies
+policies:
+  - policies.yaml
+resources:
+  - resources/pass.yaml
+  - resources/fail.yaml
+results:
+  - isValidatingPolicy: true
+    policy: require-resources
+    resources: [default/compliant, default/privileged]
+    kind: Pod
+    result: pass
+  - isValidatingPolicy: true
+    policy: require-resources
+    resources: [default/no-resources]
+    kind: Pod
+    result: fail
+  - isValidatingPolicy: true
+    policy: disallow-privileged
+    resources: [default/compliant]
+    kind: Pod
+    result: pass
+  - isValidatingPolicy: true
+    policy: disallow-privileged
+    resources: [default/privileged]
+    kind: Pod
+    result: fail
+  - isValidatingPolicy: true
+    policy: disallow-host-namespaces
+    resources: [default/compliant]
+    kind: Pod
+    result: pass
+  - isValidatingPolicy: true
+    policy: disallow-host-namespaces
+    resources: [default/host-network]
+    kind: Pod
+    result: fail
+  - isValidatingPolicy: true
+    policy: disallow-latest-tag
+    resources: [default/compliant]
+    kind: Pod
+    result: pass
+  - isValidatingPolicy: true
+    policy: disallow-latest-tag
+    resources: [default/latest-tag, default/no-tag]
+    kind: Pod
+    result: fail

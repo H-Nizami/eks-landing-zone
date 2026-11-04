@@ -9,8 +9,12 @@ python3 scripts/check-iac-safety.py
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 tar -cf - --exclude=.terraform modules examples | tar -xf - -C "$tmp"
-for dir in modules/vpc modules/eks modules/pod-identity examples/foundation; do
-  cp "locks/$cli.lock.hcl" "$tmp/$dir/.terraform.lock.hcl"
+for dir in modules/vpc modules/eks modules/compute modules/karpenter modules/pod-identity modules/platform examples/foundation examples/platform; do
+  case "$dir" in
+    */platform) lock="locks/$cli.platform.lock.hcl" ;;
+    *) lock="locks/$cli.lock.hcl" ;;
+  esac
+  cp "$lock" "$tmp/$dir/.terraform.lock.hcl"
   "$bin" -chdir="$tmp/$dir" init -backend=false -input=false -lockfile=readonly
   "$bin" -chdir="$tmp/$dir" validate
   "$bin" -chdir="$tmp/$dir" test

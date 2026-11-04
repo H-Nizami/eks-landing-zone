@@ -3,7 +3,7 @@ direction: right
 # Only the AWS container uses a grid: with plain layered layout the 7-step
 # dependency chain renders ~3:1 and is unreadable as a ~400 px cover.
 title: |md # EKS landing zone, Terraform and OpenTofu | { near: top-center; style.font-size: 48 }
-caption: "Offline mock plans for Terraform and OpenTofu.\nNot yet measured: live deploy cost and teardown." { near: bottom-center; shape: text; style.font-size: 32 }
+caption: "41/41 mock plans on Terraform and OpenTofu, 10/10 policy fixtures, CRD dry run.\nNot yet measured: live deploy cost and teardown." { near: bottom-center; shape: text; style.font-size: 32 }
 
 # Two styles only: `mine` = built in this repo, `neutral` = everything else.
 classes: {
@@ -12,7 +12,7 @@ classes: {
 }
 
 ci: "CI matrix:\nterraform 1.17\n/ tofu 1.13" { class: mine; icon: ./icons/workflow-24.svg }
-modules: "Modules:\nVPC, EKS,\nPod Identity" { class: mine }
+modules: "Modules: VPC, EKS,\ncompute, Pod Identity,\nKarpenter, platform" { class: mine }
 aws: "AWS account / region" {
   class: neutral
   icon: ./icons/AWS-Cloud-logo_32.svg
@@ -23,12 +23,12 @@ aws: "AWS account / region" {
   horizontal-gap: 240
   vpc: "VPC (3 AZ,\nprivate subnets)" { class: neutral; icon: ./icons/Arch_Amazon-Virtual-Private-Cloud_64.svg; icon.near: bottom-center }
   eks: "EKS control\nplane" { class: neutral; icon: ./icons/Arch_Amazon-Elastic-Kubernetes-Service_64.svg; icon.near: bottom-center }
-  kyverno: "Kyverno\n(deferred)" { class: neutral; icon: ./icons/kyverno-icon-color.png; icon.near: bottom-center }
-  karpenter: "Karpenter\n(deferred)" { class: neutral; icon: ./icons/karpenter-logo.png; icon.near: bottom-center }
+  kyverno: "Kyverno" { class: neutral; icon: ./icons/kyverno-icon-color.png; icon.near: bottom-center }
+  karpenter: "Karpenter" { class: neutral; icon: ./icons/karpenter-logo.png; icon.near: bottom-center }
   podid: "EKS Pod\nIdentity" { class: neutral }
   iam: "IAM roles\n(least privilege)" { class: neutral; icon: ./icons/Arch_AWS-Identity-and-Access-Management_64.svg; icon.near: bottom-center }
   sm: "Secrets\nManager" { class: neutral; icon: ./icons/Arch_AWS-Secrets-Manager_64.svg; icon.near: bottom-center }
-  eso: "External Secrets\n(deferred)" { class: neutral }
+  eso: "External Secrets" { class: neutral }
 }
 
 ci -> modules: "mock\nplan" { class: neutral; style.font-size: 32 }

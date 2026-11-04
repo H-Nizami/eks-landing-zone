@@ -30,3 +30,25 @@ module "pod_identity" {
   service_account = var.service_account
   secret_arns     = var.secret_arns
 }
+module "compute" {
+  source             = "../../modules/compute"
+  cluster_name       = module.eks.cluster_name
+  kubernetes_version = var.kubernetes_version
+  private_subnet_ids = values(module.vpc.private_subnet_ids)
+  instance_types     = var.bootstrap_instance_types
+  addon_versions = {
+    vpc_cni            = var.vpc_cni_version
+    kube_proxy         = var.kube_proxy_version
+    coredns            = var.coredns_version
+    pod_identity_agent = var.pod_identity_agent_version
+  }
+}
+module "karpenter" {
+  source                    = "../../modules/karpenter"
+  cluster_name              = module.eks.cluster_name
+  cluster_arn               = module.eks.cluster_arn
+  region                    = var.region
+  account_id                = var.account_id
+  cluster_security_group_id = module.eks.cluster_security_group_id
+  private_subnet_ids        = module.vpc.private_subnet_ids
+}

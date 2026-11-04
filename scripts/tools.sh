@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install pinned CLI tools into ./.bin, verified against sha256 sums copied from each
 # project's published checksums file. Usage: scripts/tools.sh [d2] [actionlint] [gitleaks] [trivy]
-# [terraform] [tofu] [tflint] [kubeconform] (no arguments = the first four; scanner tools by name).
+# [terraform] [tofu] [tflint] [kubeconform] [helm] [kyverno] [kind] [kubectl] (no arguments = the first four; scanner tools by name).
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -28,6 +28,10 @@ TERRAFORM_VERSION=1.17.0
 TOFU_VERSION=1.13.2
 TFLINT_VERSION=0.64.0
 KUBECONFORM_VERSION=0.8.0
+HELM_VERSION=3.22.1
+KYVERNO_VERSION=1.19.2
+KIND_VERSION=0.33.0
+KUBECTL_VERSION=1.34.11
 
 # Sets: url, sum, member (path of the binary inside the archive).
 resolve() {
@@ -120,8 +124,52 @@ resolve() {
       url="https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-${os}-${arch}.tar.gz"
       member="kubeconform"
       ;;
+    helm)
+      # https://get.helm.sh/helm-v3.22.1-<platform>.tar.gz.sha256sum
+      case "$plat" in
+        darwin-arm64) sum=e73da8a0b0d5193774fdff17ce6319c7436bb22ee229b45fd64f3c40368c753a ;;
+        darwin-amd64) sum=cf850a81b908f8eef0331e6b18776da2767bcac639ca84472311dad20008495c ;;
+        linux-amd64) sum=896cf63684a42a723d61c980369d6e588330927deb13676ca0d85006dd6da0ea ;;
+        linux-arm64) sum=4c29e286b279d170fa048ddfc3e4e83dcd069ca9c52102766ba672d7149e694d ;;
+      esac
+      url="https://get.helm.sh/helm-v${HELM_VERSION}-${os}-${arch}.tar.gz"
+      member="${os}-${arch}/helm"
+      ;;
+    kyverno)
+      # https://github.com/kyverno/kyverno/releases/download/v1.19.2/checksums.txt
+      local karch="$arch"
+      [ "$arch" = amd64 ] && karch=x86_64
+      case "$plat" in
+        darwin-arm64) sum=7915c03c613c22363a100adb3da8d06f2e2626d9d21a98b97f921795ffdc536f ;;
+        darwin-amd64) sum=b645654ab8e65bd4aa64de9228e274b388bab19b3404a4e9af70174b3d5ad230 ;;
+        linux-amd64) sum=357eaf1df8bc24ddd5a73979fadeaae6a032e8710f11af264229756e4956bf4a ;;
+        linux-arm64) sum=250f2a02f143d5c6425e686b13c130d3a3ba7372dba6a7210d599d1b0dd12e92 ;;
+      esac
+      url="https://github.com/kyverno/kyverno/releases/download/v${KYVERNO_VERSION}/kyverno-cli_v${KYVERNO_VERSION}_${os}_${karch}.tar.gz"
+      member="kyverno"
+      ;;
+    kind)
+      case "$plat" in
+        darwin-amd64) sum=5a99f26f57246dc9319dd294803313197a0f34d33c525b3ea8b655db5916ece0 ;;
+        darwin-arm64) sum=0c8c7dbe5e23594a198b786c4bc13dacc101fa6196b0cb0b23a1ca44e61f4b4f ;;
+        linux-amd64) sum=aee6151561422756b764a4ae28e7f44cda5af5a9eead3cc9985112b1de8d8e0d ;;
+        linux-arm64) sum=20022bee6cfcd5086cb7234d218e3454e6090022f2a8f55d1fa7fcf42c3867a2 ;;
+      esac
+      url="https://github.com/kubernetes-sigs/kind/releases/download/v${KIND_VERSION}/kind-${plat}"
+      member=__raw__
+      ;;
+    kubectl)
+      case "$plat" in
+        darwin-amd64) sum=49e6f1dbfef237b64dd2887a22b03bed16c6aab8883d4c7300eea4d76bfcd095 ;;
+        darwin-arm64) sum=d9e0946a4446cfd66495676273aa71c64566a49e63580136eb138ef6b562c4d9 ;;
+        linux-amd64) sum=8efbb9435132a190920eb65a47a8c1ecf755ad85ab57a600c9bedbab460bb7a8 ;;
+        linux-arm64) sum=5b045a4712674c88a56fd98eef4285689738b7fbe8735e1b9ee3509521af5cb4 ;;
+      esac
+      url="https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/${os}/${arch}/kubectl"
+      member=__raw__
+      ;;
     *)
-      echo "tools.sh: unknown tool '$tool' (known: d2 actionlint gitleaks trivy terraform tofu tflint kubeconform)" >&2
+      echo "tools.sh: unknown tool '$tool' (known: d2 actionlint gitleaks trivy terraform tofu tflint kubeconform helm kyverno kind kubectl)" >&2
       exit 1
       ;;
   esac
@@ -171,11 +219,15 @@ install_tool() {
     echo "tools.sh: checksum mismatch for $tool, aborting" >&2
     exit 1
   fi
-  case "$archive" in
-    *.zip) unzip -q -o "$archive" "$member" -d "$tmp" ;;
-    *) tar -xzf "$archive" -C "$tmp" "$member" ;;
-  esac
-  install -m 0755 "$tmp/$member" "$bin/$tool"
+  if [ "$member" = __raw__ ]; then
+    install -m 0755 "$archive" "$bin/$tool"
+  else
+    case "$archive" in
+      *.zip) unzip -q -o "$archive" "$member" -d "$tmp" ;;
+      *) tar -xzf "$archive" -C "$tmp" "$member" ;;
+    esac
+    install -m 0755 "$tmp/$member" "$bin/$tool"
+  fi
   echo "$sum $(hash_of "$bin/$tool")" > "$stamp"
   rm -rf "$tmp"
   tmp=""

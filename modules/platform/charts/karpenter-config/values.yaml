@@ -1,0 +1,4 @@
+clusterName: example-eks
+nodeRoleName: example-eks-karpenter-node
+amiAlias: al2023@v20261031
+cpuLimit: 32
